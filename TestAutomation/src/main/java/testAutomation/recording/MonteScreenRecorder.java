@@ -7,14 +7,10 @@ import org.monte.media.Registry;
 import org.monte.media.math.Rational;
 import org.monte.screenrecorder.ScreenRecorder;
 
-import testAutomation.recording.RecorderNotStartedExcetpion;
-import testAutomation.recording.RecorderNotStoppedException;
 import testAutomation.testdata.TestCaseNameManager;
 import testAutomation.testdata.TestConfig;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -23,20 +19,18 @@ import java.util.Calendar;
 import static org.monte.media.AudioFormatKeys.EncodingKey;
 import static org.monte.media.AudioFormatKeys.FrameRateKey;
 import static org.monte.media.AudioFormatKeys.KeyFrameIntervalKey;
-import static org.monte.media.AudioFormatKeys.MIME_QUICKTIME;
 import static org.monte.media.AudioFormatKeys.MediaTypeKey;
 import static org.monte.media.AudioFormatKeys.MimeTypeKey;
 import static org.monte.media.VideoFormatKeys.*;
 
-public class MonteScreenRecorder {
+public class MonteScreenRecorder extends testAutomation.recording.ScreenRecorder {
     private ScreenRecorder screenRecorder = null;
 
-    public MonteScreenRecorder start() throws RecorderNotStartedExcetpion {
+    public MonteScreenRecorder startRecording() {
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat formater = new SimpleDateFormat("dd_MM_yyyy_hh_mm_ss");
         try {
-            //if (screenRecorder == null) {
 
             //Create a instance of GraphicsConfiguration to get the Graphics configuration
             //of the Screen. This is needed for ScreenRecorder class.
@@ -53,8 +47,7 @@ public class MonteScreenRecorder {
                     getMouseFormat(),
                     null,
                     new File(TestConfig.OUTPUT_DIRECTORY + "\\video_output"),
-                    TestCaseNameManager.getTestName() + formater.format(calendar.getTime()));
-            // }
+                    outputFileName);
 
             if (!screenRecorder.getState().equals(ScreenRecorder.State.RECORDING)) {
                 screenRecorder.start();
@@ -62,11 +55,12 @@ public class MonteScreenRecorder {
             return this;
 
         } catch (Exception e) {
-            throw new RecorderNotStartedExcetpion("MonteScreenRecorder not started.");
+           e.printStackTrace();
+           return null;
         }
     }
 
-    public void stop() throws RecorderNotStoppedException {
+    public void stopRecording() {
         if (screenRecorder==null) {
             return;
         }
@@ -75,35 +69,18 @@ public class MonteScreenRecorder {
                 screenRecorder.stop();
             }
         } catch (Exception e) {
-            throw new RecorderNotStoppedException("MonteScreenRecorder not stopped.");
+            e.printStackTrace();
+            return;
         }
     }
 
     private Format getFileFormat(){
-        /*return  new Format(
-                MediaTypeKey,
-                FormatKeys.MediaType.FILE,
-                MimeTypeKey, MIME_QUICKTIME);*/
         return new Format(
                 MediaTypeKey, MediaType.FILE,
                 MimeTypeKey, MIME_AVI);
     }
 
     private Format getScreenFormat(){
-        /*return new Format(MediaTypeKey,
-                FormatKeys.MediaType.VIDEO,
-                EncodingKey,
-                ENCODING_QUICKTIME_JPEG,
-                CompressorNameKey,
-                ENCODING_QUICKTIME_JPEG,
-                DepthKey,
-                24,
-                FrameRateKey,
-                Rational.valueOf(30),
-                QualityKey,
-                1.0f,
-                KeyFrameIntervalKey,
-                30 * 60);*/
         return new Format(
                 MediaTypeKey, MediaType.VIDEO,
                 EncodingKey, ENCODING_AVI_TECHSMITH_SCREEN_CAPTURE,
